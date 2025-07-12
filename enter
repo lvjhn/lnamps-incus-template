@@ -1,0 +1,6 @@
+#!/bin/bash
+source .env
+source utils/shell-helpers.sh 
+
+# --- get user id 
+login_as_user "cd ~/project/source/$1 && exec bash"
