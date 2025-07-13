@@ -70,6 +70,7 @@ function install_composer() {
 function install_postgresql() {
   cecho $_BRIGHT_BLUE "[CONTAINER] INSTALLING [postgresql]"
   apk add postgresql$POSTGRESQL_VERSION
+  echo
 }
 
 function install_adminer() {
@@ -171,6 +172,8 @@ su postgres -c "psql -v ON_ERROR_STOP=1" <<EOF
 EOF
 
   sudo killall postgres
+
+  echo
 }
 
 function setup_ssh_server() {
@@ -180,124 +183,26 @@ function setup_ssh_server() {
   find_and_replace /etc/ssh/sshd_config "#ListenAddress 0.0.0.0" "ListenAddress 0.0.0.0"
 
   # --- generate keys 
-  sudo ssh-keygen -D
-}
-
-function setup_ssl_certificates() {
-  cecho $_BRIGHT_BLUE "# [CONTAINER] Setting up SSL certificates..."
-
-  CA_NAME=lnamps
-  CA_DIR=./.lnamps/ca
-
-  CA_KEY=$CA_DIR/private/$CA_NAME.key
-  CA_CRT=$CA_DIR/public/$CA_NAME.crt
-  CSR_FILE=./source/certificates/$PROJECT_NAME.csr
-  EXT_FILE=./source/certificates/$PROJECT_NAME.v3.ext
-  KEY_FILE=./source/certificates/$PROJECT_NAME.key
-  CRT_FILE=./source/certificates/$PROJECT_NAME.crt
-
-  if [ ! -d "$CA_DIR" ]; then
-    cecho $_BRIGHT_GREEN "# [CONTAINER] Creating CA files..."
-    mkdir -p "$CA_DIR"
-    mkdir -p "$CA_DIR/private"
-    mkdir -p "$CA_DIR/public"
-    touch "$CA_DIR/STATUS"
-    echo "NOT_INSTALLED" > "$CA_DIR/STATUS"
-
-    echo "--- Creating $CA_KEY"
-    PASSPHRASE=password
-    openssl genrsa \
-      -aes256 \
-      -passout pass:$PASSPHRASE \
-      -out "$CA_KEY" 4096
-    
-    echo "--- Creating $CA_CRT"
-    C="PH"
-    ST="Arbitrary"
-    L="Arbitrary"
-    O="$CA_NAME"
-    OU="$CA_NAME"
-    CN="$CA_NAME"
-
-    openssl req \
-      -x509 \
-      -new \
-      -nodes \
-      -key $CA_KEY \
-      -sha256 \
-      -days 30000 \
-      -out "$CA_DIR/public/$CA_NAME.crt" \
-      -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$CN" \
-      -passin pass:$PASSPHRASE 
-
-  else
-    cecho $_BRIGHT_GREEN "# [CONTAINER] Existing CA certificate detected..."
-  fi 
-
-  cecho $_BRIGHT_GREEN "# [CONTAINER] Creating site certificates..."
-
-  echo "--- Creating CSR file."
-  SITE_CERT="$PROJECT_NAME"
-  COMMON_NAME="$PROJECT_NAME"
-  C="PH"
-  ST="Arbitrary"
-  L="Arbitrary"
-  O="$PROJECT_NAME"
-  DNS1="$PROJECT_NAME"
-  DNS2="$PROJECT_NAME.lan"
-
-  openssl req -new -nodes \
-    -out "$CSR_FILE" \
-    -newkey rsa:4096 \
-    -keyout "$SITE_CERT" \
-    -subj "/CN=$COMMON_NAME/C=$C/ST=$ST/L=$L/O=$O" \
-  
-
-  echo "--- Create SAN extension config file."
-cat > "$EXT_FILE" <<EOF
-  authorityKeyIdentifier=keyid,issuer
-  basicConstraints=CA:FALSE
-  keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-  subjectAltName = @alt_names
-
-  [alt_names]
-  DNS.1 = $DNS1
-  DNS.2 = $DNS2
-EOF
-
-
-  # Sign the certificate
-  echo "--- Signing the certificate"
-  openssl x509 \
-    -req \
-    -in $CSR_FILE \
-    -CA $CA_CRT \
-    -CAkey $CA_KEY \
-    -CAcreateserial \
-    -out $CRT_FILE \
-    -days 730 \
-    -sha256 \
-    -extfile $EXT_FILE \
-    -passin pass:$PASSPHRASE
+  sudo ssh-keygen -A
 
   echo
 }
 
 
+
 # --- INSTALLATION FLOW --- # 
-# install_python
-# install_nodejs
-# install_php 
-# install_composer
-# install_adminer
-# install_mailpit
-# install_memcached
-# install_postgresql
-# install_nginx
-# install_openssh
+install_python
+install_nodejs
+install_php 
+install_composer
+install_adminer
+install_mailpit
+install_memcached
+install_postgresql
+install_nginx
+install_openssh
 install_openssl
 
 # --- CONFIGURATION FLOW --- # 
-# setup_postgresql
-# setup_ssh_server
-setup_ssl_certificates
+setup_ssh_server
+setup_postgresql
