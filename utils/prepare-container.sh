@@ -46,10 +46,21 @@ function configure_instance() {
 function setup_storage() {
     cecho $_BRIGHT_GREEN "# [HOST] Setting up instance storage..."
 
+    if [ ! -d /opt/lnamps ]; then 
+        sudo mkdir -p /opt/lnamps
+        sudo chmod 777 -R /opt/lnamps
+    fi
+
     incus config device add $PROJECT_NAME \
         project disk \
         source=$(pwd) \
         path=/var/lnamps/project/ \
+        shift=true
+
+    incus config device add $PROJECT_NAME \
+        context disk \
+        source=/opt/lnamps \
+        path=/opt/lnamps \
         shift=true
 }
 

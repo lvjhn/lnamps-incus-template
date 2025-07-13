@@ -40,6 +40,8 @@ function install_sudo() {
 
     cecho $_BRIGHT_GREEN "# [CONTAINER] Linking project folder ..."
     ln -s /var/lnamps/project /home/$CONTAINER_USER/project
+    rm -rf /home/$CONTAINER_USER/project/.lnamps
+    ln -s /opt/lnamps /home/$CONTAINER_USER/project/.lnamps
 
     echo 
 }
