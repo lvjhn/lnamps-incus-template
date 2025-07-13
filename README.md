@@ -7,7 +7,7 @@ _Pre-bundled Application Development Container with Incus_
 ### Third Party Softwares Bundled
 
 *   **L** → Linux
-*   **N** → Node.js + Nginx
+*   **N** → Node.js
 *   **A** → Adminer + Alpine Linux
 *   **M** → Memcached + Mailpit
 *   **P** → Python + PHP + PostgreSQL

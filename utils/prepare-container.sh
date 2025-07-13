@@ -56,12 +56,6 @@ function setup_storage() {
         source=$(pwd) \
         path=/var/lnamps/project/ \
         shift=true
-
-    incus config device add $PROJECT_NAME \
-        context disk \
-        source=/opt/lnamps \
-        path=/opt/lnamps \
-        shift=true
 }
 
 # --- SET UP NETWORK --- # 
@@ -70,7 +64,7 @@ function setup_network() {
 
     # --- create bridge network --- # 
     CREATE_NETWORK=${CREATE_NETWORK:-"true"}
-    BRIDGE_NAME=${NETWORK_NAME:-br0}
+    BRIDGE_NAME=${NETWORK_NAME:-lnamps}
     BRIDGE_IP=${NETWORK_IP:-"10.10.10.1"}
     BRIDGE_DOMAIN=${NETWORK_DOMAIN:-.lnamps}
     

@@ -36,6 +36,14 @@ function find_and_replace() {
     sed -i "s|^$NEEDLE|$REPLACE|" "$HAYSTACK"
 }
 
+# --- INSERT AFTER LINE --- #
+function insert_after_line() {
+    FILE=$1
+    MATCH=$2
+    INSERT=$3
+    sed -i "/${MATCH}/a ${INSERT}" "$FILE"
+}
+
 # --- FIND IN FILE --- #
 function find_in_file() {
     HAYSTACK=$1
@@ -46,6 +54,9 @@ function find_in_file() {
         return 1
     fi
 }
+
+
+
 
 # --- CHECK IF INCUS HAS INSTANCE --- # 
 function has_instance() {
@@ -110,4 +121,8 @@ function login_as_user() {
 # --- GETS THE USER ID OF THE USER --- #
 function user_id() {
     echo $(incus exec "$PROJECT_NAME" -- id -u $CONTAINER_USER)
+}
+
+function root_id() {
+    echo $(incus exec "$PROJECT_NAME" -- id -u root)
 }

@@ -1,0 +1,5 @@
+#!/bin/bash
+cd tools/dev-proxy
+source env/bin/activate
+node tool.js
+cd ../../

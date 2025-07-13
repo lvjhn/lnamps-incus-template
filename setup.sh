@@ -171,7 +171,15 @@ su postgres -c "psql -v ON_ERROR_STOP=1" <<EOF
   CREATE DATABASE "${POSTGRESQL_PROJECT_DB}" OWNER "${POSTGRESQL_USER}";
 EOF
 
-  sudo killall postgres
+  su postgres -c "
+    pg_ctl -D '$POSTGRESQL_DATA_DIR' -m fast stop
+  "
+
+  # Wait until PostgreSQL has shut down
+  while su postgres -c "pg_isready -q -d postgres"; do
+    cecho $_BRIGHT_YELLOW "--- Waiting for PostgreSQL to shut down..."
+    sleep 1
+  done
 
   echo
 }
@@ -186,6 +194,19 @@ function setup_ssh_server() {
   sudo ssh-keygen -A
 
   echo
+}
+
+function setup_nginx() {
+  cecho $_BRIGHT_BLUE "# [CONTAINER] Setting up nginx..."
+
+  cd /home/$CONTAINER_USER/project/
+
+  sudo rm -rf /etc/nginx/nginx.conf 
+
+  sudo cp ./sites/nginx.conf /etc/nginx/nginx.conf 
+  sudo cp ./sites/setup.conf /etc/nginx/http.d/default.conf
+
+  sudo chmod 644 /home/$CONTAINER_USER/project/source
 }
 
 
@@ -206,3 +227,4 @@ install_openssl
 # --- CONFIGURATION FLOW --- # 
 setup_ssh_server
 setup_postgresql
+setup_nginx
